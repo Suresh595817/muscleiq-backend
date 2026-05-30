@@ -4,17 +4,17 @@ import dotenv from 'dotenv';
 // Load environmental variables
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
+const PORT = parseInt(process.env.PORT ?? "5000", 10);
 
 const startServer = async () => {
 // 1. Supabase client is initialized in db.ts
 
   // 2. Start Express Listening Server
-  const server = app.listen(PORT, () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(
       `[Server] MuscleIQ Backend running in ${
         process.env.NODE_ENV || 'development'
-      } mode on http://localhost:${PORT}`
+      } mode on http://0.0.0.0:${PORT}`
     );
   });
 
