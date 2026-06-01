@@ -18,7 +18,7 @@ if (!fs.existsSync(uploadDir)) {
 
 // 1. Safety Middlewares
 app.use(helmet()); // Set protective HTTP response headers
-app.use(cors()); // Allow cross-origin requests
+app.use(cors({ origin: true, credentials: true })); // Allow all origins
 app.use(express.json()); // Parse incoming JSON payloads
 app.use(express.urlencoded({ extended: true }));
 
