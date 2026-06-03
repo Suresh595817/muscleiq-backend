@@ -1,8 +1,8 @@
 export interface UserProfile {
   id: string; // UUID from auth.users
   name: string;
-  email: string; // from auth.users, stored in profiles for easy access
-  role: 'user' | 'admin';
+  email?: string; // may not exist in profiles table
+  role?: 'user' | 'admin'; // may not exist in profiles table
   age?: number;
   gender?: 'male' | 'female' | 'other';
   height?: number; // in cm
