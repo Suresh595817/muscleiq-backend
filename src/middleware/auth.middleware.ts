@@ -39,17 +39,27 @@ export const protect = async (
       return;
     }
 
-    const { data: profile, error: profileError } = await supabase
+    let { data: profile } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', authUser.id)
       .single();
 
-    if (profileError || !profile) {
-      res.status(401).json({
-        success: false,
-        message: 'Not authorized, user profile not found',
-      });
+    // Auto-create profile if missing (handles legacy accounts)
+    if (!profile) {
+      const { data: newProfile } = await supabase
+        .from('profiles')
+        .insert([{
+          id: authUser.id,
+          name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+        }])
+        .select()
+        .single();
+      profile = newProfile;
+    }
+
+    if (!profile) {
+      res.status(401).json({ success: false, message: 'Could not create user profile' });
       return;
     }
 

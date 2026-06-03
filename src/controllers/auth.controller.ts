@@ -26,14 +26,14 @@ export const register = async (
     }
 
     if (authData.user) {
-      await supabase.from('profiles').insert([
-        {
-          id: authData.user.id,
-          name,
-          email,
-          role: role || 'user',
-        }
-      ]);
+      // Only insert columns that actually exist in the profiles table
+      const { error: profileError } = await supabase.from('profiles').insert([{
+        id: authData.user.id,
+        name: name || 'User',
+      }]);
+      if (profileError) {
+        console.error('[Register] Profile insert failed:', profileError.message);
+      }
     }
 
     res.status(201).json({
@@ -69,20 +69,31 @@ export const login = async (
       return;
     }
 
-    const { data: profile } = await supabase
+    // Get or create profile
+    let { data: profile } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', data.user.id)
       .single();
+
+    // Auto-create profile if it doesn't exist (e.g. old accounts)
+    if (!profile) {
+      const { data: newProfile } = await supabase
+        .from('profiles')
+        .insert([{ id: data.user.id, name: data.user.user_metadata?.name || email.split('@')[0] }])
+        .select()
+        .single();
+      profile = newProfile;
+    }
 
     res.status(200).json({
       success: true,
       token: data.session.access_token,
       user: {
         id: data.user.id,
-        name: profile?.name || '',
-        email: profile?.email || email,
-        role: profile?.role || 'user',
+        name: profile?.name || email.split('@')[0],
+        email: email,
+        role: 'user',
       },
     });
   } catch (error) {
