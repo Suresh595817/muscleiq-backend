@@ -4,9 +4,7 @@ import { protect } from '../middleware/auth.middleware';
 
 const router = Router();
 
-router.use(protect);
-
 router.get('/exercises', getExercises);
-router.post('/exercises', createCustomExercise);
+router.post('/exercises', protect, createCustomExercise);
 
 export default router;
