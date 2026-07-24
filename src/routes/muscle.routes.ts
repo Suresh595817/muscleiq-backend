@@ -8,7 +8,7 @@ const router = Router();
 router.get('/test-db', async (req, res) => {
   const { data, error } = await supabase
       .from('workouts')
-      .select('*, workout_exercises(*, workout_sets(*))')
+      .select('*, workout_exercises(*, exercises(*), workout_sets(*))')
       .limit(1);
   if (error) {
     res.json({ success: false, error });
