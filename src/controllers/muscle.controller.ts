@@ -8,16 +8,17 @@ export const getExercises = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    if (!req.user) {
-      res.status(401).json({ success: false, message: 'User context not found' });
-      return;
+    let query = supabase.from('exercises').select('*').order('name', { ascending: true });
+
+    if (req.user) {
+      // If logged in, fetch default exercises + user's custom exercises
+      query = query.or(`is_custom.eq.false,created_by.eq.${req.user.id}`);
+    } else {
+      // If not logged in, fetch only default exercises
+      query = query.eq('is_custom', false);
     }
 
-    const { data: exercises, error } = await supabase
-      .from('exercises')
-      .select('*')
-      .or(`is_custom.eq.false,created_by.eq.${req.user.id}`)
-      .order('name', { ascending: true });
+    const { data: exercises, error } = await query;
 
     if (error) {
        res.status(500).json({ success: false, message: error.message });
