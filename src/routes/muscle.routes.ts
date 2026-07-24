@@ -6,13 +6,14 @@ import { supabase } from '../config/db';
 const router = Router();
 
 router.get('/test-db', async (req, res) => {
-  const { data, error } = await supabase.from('exercises').insert([{ name: 'TestDB-' + Date.now(), primary_muscle: 'Chest', is_custom: true }]).select();
+  const { data, error } = await supabase
+      .from('workouts')
+      .select('*, workout_exercises(*, workout_sets(*))')
+      .limit(1);
   if (error) {
     res.json({ success: false, error });
   } else {
-    // Clean up
-    await supabase.from('exercises').delete().eq('id', data[0].id);
-    res.json({ success: true, message: 'DB Insert works! Service key is active.' });
+    res.json({ success: true, data: data });
   }
 });
 
