@@ -98,7 +98,7 @@ export const getWorkouts = async (
 
     const { data: workouts, count, error } = await supabase
       .from('workouts')
-      .select('*, workout_exercises(*, workout_sets(*))', { count: 'exact' })
+      .select('*, workout_exercises(*, exercises(*), workout_sets(*))', { count: 'exact' })
       .eq('user_id', req.user.id)
       .order('date', { ascending: false })
       .range(from, to);
